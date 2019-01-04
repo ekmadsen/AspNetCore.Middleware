@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.168
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.Middleware", "AspNetCore.Middleware\AspNetCore.Middleware.csproj", "{1D621437-67EC-4460-9AAB-63D254FEA99C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{52F8FF47-4FC3-4F9A-B008-30FD0B65D46D}"
+	ProjectSection(SolutionItems) = preProject
+		AspNetCore.Middleware.sln.DotSettings = AspNetCore.Middleware.sln.DotSettings
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1D621437-67EC-4460-9AAB-63D254FEA99C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D621437-67EC-4460-9AAB-63D254FEA99C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D621437-67EC-4460-9AAB-63D254FEA99C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D621437-67EC-4460-9AAB-63D254FEA99C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B6B9A105-8D97-4803-8045-07CD0910E74E}
+	EndGlobalSection
+EndGlobal

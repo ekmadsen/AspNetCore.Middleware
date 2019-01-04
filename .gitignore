@@ -3,3 +3,7 @@
 ################################################################################
 
 /.vs
+/AspNetCore.Middleware/.vs/AspNetCore.Middleware
+/AspNetCore.Middleware/bin
+/AspNetCore.Middleware/obj
+/AspNetCore.Middleware.sln.DotSettings.user
