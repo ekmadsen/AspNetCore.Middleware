@@ -11,8 +11,9 @@
     <PackageProjectUrl>https://github.com/ekmadsen/AspNetCore.Middleware</PackageProjectUrl>
     <RepositoryUrl>https://github.com/ekmadsen/AspNetCore.Middleware</RepositoryUrl>
     <RepositoryType>GitHub</RepositoryType>
-    <PackageTags>asp-net-core asp-net-mvc middleware logging exception-handling</PackageTags>
+    <PackageTags>asp-net-core asp-net-mvc middleware logging exception-handling dotnet-core dotnet-standard</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseUrl></PackageLicenseUrl>
   </PropertyGroup>
 
   <ItemGroup>
