@@ -1,9 +1,18 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>ErikTheCoder.AspNetCore.Middleware</RootNamespace>
     <AssemblyName>ErikTheCoder.AspNetCore.Middleware</AssemblyName>
+    <Authors>Erik Madsen</Authors>
+    <Company>Erik Madsen</Company>
+    <Description>Middleware injected into ASP.NET Core pipeline at startup.</Description>
+    <Copyright>2019</Copyright>
+    <PackageProjectUrl>https://github.com/ekmadsen/AspNetCore.Middleware</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ekmadsen/AspNetCore.Middleware</RepositoryUrl>
+    <RepositoryType>GitHub</RepositoryType>
+    <PackageTags>asp-net-core asp-net-mvc middleware logging exception-handling</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

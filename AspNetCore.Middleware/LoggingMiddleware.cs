@@ -74,22 +74,22 @@ namespace ErikTheCoder.AspNetCore.Middleware
             {
                 // Log header, query, and form parameters.
                 // Avoid logging sensitive phrases.
-                foreach ((string key, StringValues values) in Context.Request.Headers)
+                foreach (KeyValuePair<string, StringValues> headerParameter in Context.Request.Headers)
                 {
-                    if (_sensitivePhrases.Contains(key)) continue;
-                    _logger.Log(correlationId, $"Header Key = {key}, Values = {string.Join(", ", values)}");
+                    if (_sensitivePhrases.Contains(headerParameter.Key)) continue;
+                    _logger.Log(correlationId, $"Header Key = {headerParameter.Key}, Values = {string.Join(", ", headerParameter.Value)}");
                 }
-                foreach ((string key, StringValues values) in Context.Request.Query)
+                foreach (KeyValuePair<string, StringValues> queryParameter in Context.Request.Query)
                 {
-                    if (_sensitivePhrases.Contains(key)) continue;
-                    _logger.Log(correlationId, $"Query Key = {key}, Values = {string.Join(", ", values)}");
+                    if (_sensitivePhrases.Contains(queryParameter.Key)) continue;
+                    _logger.Log(correlationId, $"Query Key = {queryParameter.Key}, Values = {string.Join(", ", queryParameter.Value)}");
                 }
                 if (Context.Request.HasFormContentType)
                 {
-                    foreach ((string key, StringValues values) in Context.Request.Form)
+                    foreach (KeyValuePair<string, StringValues> formParameter in Context.Request.Form)
                     {
-                        if (_sensitivePhrases.Contains(key)) continue;
-                        _logger.Log(correlationId, $"Form Key = {key}, Values = {string.Join(", ", values)}");
+                        if (_sensitivePhrases.Contains(formParameter.Key)) continue;
+                        _logger.Log(correlationId, $"Form Key = {formParameter.Key}, Values = {string.Join(", ", formParameter.Value)}");
                     }
                 }
             }

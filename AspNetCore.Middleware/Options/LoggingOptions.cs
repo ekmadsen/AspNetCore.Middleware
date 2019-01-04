@@ -8,8 +8,10 @@ namespace ErikTheCoder.AspNetCore.Middleware.Options
     public class LoggingOptions
     {
         public bool LogRequestParameters { get; [UsedImplicitly] set; }
+        // ReSharper disable CollectionNeverUpdated.Global
         public List<string> IgnoreUrls { get; }
         public List<string> TruncateUrls { get; }
+        // ReSharper restore CollectionNeverUpdated.Global
 
 
         public LoggingOptions()
