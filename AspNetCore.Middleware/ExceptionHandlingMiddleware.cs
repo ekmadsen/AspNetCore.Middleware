@@ -34,7 +34,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
                 AlternatePipeline.Run(async HttpContext =>
                 {
                     // Get correlation ID.
-                    Guid correlationId = CorrelationId.Get(HttpContext);
+                    Guid correlationId = HttpContext.GetCorrelationId();
                     // Get exception.
                     IExceptionHandlerFeature exceptionHandlerFeature = HttpContext.Features.Get<IExceptionHandlerFeature>();
                     SimpleException innerException;

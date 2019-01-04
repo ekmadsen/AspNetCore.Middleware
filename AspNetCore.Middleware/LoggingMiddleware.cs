@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using ErikTheCoder.AspNetCore.Middleware.Options;
 using ErikTheCoder.Logging;
+using ErikTheCoder.ServiceContract;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;

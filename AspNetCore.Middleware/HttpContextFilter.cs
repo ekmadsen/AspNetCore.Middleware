@@ -20,7 +20,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
 
         public async Task OnActionExecutionAsync(ActionExecutingContext Context, ActionExecutionDelegate Next)
         {
-            CorrelationId = Middleware.CorrelationId.Get(Context.HttpContext);
+            CorrelationId = Context.HttpContext.GetCorrelationId();
             ClientIpAddress = $"{Context.HttpContext.Connection.RemoteIpAddress}:{Context.HttpContext.Connection.RemotePort}";
             ServerIpAddress = $"{Context.HttpContext.Connection.LocalIpAddress}:{Context.HttpContext.Connection.RemotePort}";
             User = User.ParseClaims(Context.HttpContext.User.Claims);
