@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using ErikTheCoder.Identity.Contract;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc.Filters;
 

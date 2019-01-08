@@ -1,4 +1,5 @@
 ﻿using System;
+using ErikTheCoder.Identity.Contract;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc.Filters;
 

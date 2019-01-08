@@ -22,6 +22,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
         }
 
 
+        [UsedImplicitly]
         protected Guid CorrelationId
         {
             get
@@ -34,6 +35,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
         }
 
 
+        [UsedImplicitly]
         protected string GetCallingUsername() => User.Identity.Name ?? "Anonymous";
     }
 }
