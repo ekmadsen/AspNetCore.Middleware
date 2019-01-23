@@ -2,10 +2,12 @@
 using ErikTheCoder.AspNetCore.Middleware.Options;
 using ErikTheCoder.ServiceContract;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+using AuthenticationOptions = ErikTheCoder.AspNetCore.Middleware.Options.AuthenticationOptions;
 
 
 namespace ErikTheCoder.AspNetCore.Middleware
@@ -46,6 +48,13 @@ namespace ErikTheCoder.AspNetCore.Middleware
             ExceptionHandlingOptions options = new ExceptionHandlingOptions();
             ConfigureOptions?.Invoke(options);
             ExceptionHandlingMiddleware.Enable(ApplicationBuilder, options);
+        }
+
+
+        [UsedImplicitly]
+        public static AuthenticationBuilder AddErikTheCoderAuthentication(this AuthenticationBuilder AuthenticationBuilder, Action<AuthenticationOptions> ConfigureOptions = null)
+        {
+            return AuthenticationBuilder.AddScheme<AuthenticationOptions, AuthenticationHandler>(AuthenticationHandler.AuthenticationScheme, ConfigureOptions);
         }
 
 

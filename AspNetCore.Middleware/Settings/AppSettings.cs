@@ -10,6 +10,7 @@ namespace ErikTheCoder.AspNetCore.Middleware.Settings
         public DatabaseLoggerSettings Logger { get; set; }
         public EmailSettings Email { get; set; }
         public string Database { get; set; }
+        public AuthenticationIdentities AuthenticationIdentities { get; set; }
         public string CredentialSecret { get; set; }
         public int AdminCredentialExpirationMinutes { get; set; }
         public int NonAdminCredentialExpirationMinutes { get; set; }
