@@ -29,11 +29,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            if (!Request.Headers.TryGetValue(HttpHeaderName, out StringValues authorizationValues))
-            {
-                // Indicate failure.
-                return await Task.FromResult(AuthenticateResult.Fail($"{HttpHeaderName} header not found."));
-            }
+            if (!Request.Headers.TryGetValue(HttpHeaderName, out StringValues authorizationValues)) return await Task.FromResult(AuthenticateResult.Fail($"{HttpHeaderName} header not found.")); // Indicate failure.
             string token = authorizationValues.ToString();
             foreach (AuthenticationIdentity authenticationIdentity in Options.Identities)
             {
@@ -50,6 +46,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
                     return await Task.FromResult(AuthenticateResult.Success(authenticationTicket));
                 }
             }
+            // Token does not match any known authentication identities.
             // Indicate failure.
             return await Task.FromResult(AuthenticateResult.Fail($"Invalid {HttpHeaderName} header."));
         }
