@@ -44,6 +44,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
                         // Deserialize exception from JSON response.
                         try
                         {
+                            // BUG: Current version of Refit (4.6.58 on 2019 Jan 29) fails to deserialize SimpleException, returning null instead.  This prevents error messages flowing from service to website.
                             SimpleException refitException = apiException.GetContentAs<SimpleException>() ?? new SimpleException(apiException, correlationId, Options.AppName, Options.ProcessName);
                             innerException = new SimpleException(refitException, correlationId, Options.AppName, Options.ProcessName,
                                 "An exception occurred when a Refit proxy called a service method.");
