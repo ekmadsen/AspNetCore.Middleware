@@ -16,7 +16,7 @@
     <PackageLicenseUrl></PackageLicenseUrl>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
-    <Version>1.0.12-beta.12</Version>
+    <Version>1.0.12</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -29,9 +29,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ErikTheCoder.Logging" Version="1.0.3-beta.5" />
-    <PackageReference Include="ErikTheCoder.ServiceContract" Version="1.0.4-beta.1" />
-    <PackageReference Include="ErikTheCoder.ServiceProxy" Version="1.0.3-beta.2" />
+    <PackageReference Include="ErikTheCoder.Logging" Version="1.0.3" />
+    <PackageReference Include="ErikTheCoder.ServiceContract" Version="1.0.4" />
+    <PackageReference Include="ErikTheCoder.ServiceProxy" Version="1.0.3" />
     <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="2.2.0" />
