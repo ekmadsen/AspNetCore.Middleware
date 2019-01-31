@@ -146,3 +146,4 @@ Services.AddAuthorization(Options => Options.UseErikTheCoderPolicies());
 
 # Benefits #
 
+See the [Benefits section](https://github.com/ekmadsen/Logging#benefits-reading-logs) of my Logging ReadMe for example SQL statements and screenshots that illustrate how to retrieve tracing, performance, and metric logs from the Logging database or from .csv text files opened in Microsoft Excel.
