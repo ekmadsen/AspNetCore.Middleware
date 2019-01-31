@@ -168,7 +168,7 @@ I recommend you bind these settings directly from appSettings.json:
 ```Json
 "AuthenticationIdentities": [
   {
-    "Token": "SecretTokenQwert101",
+    "Token": "SecretTokenQwerty101",
     "Username": "webpool",
     "Roles": [ "Admin" ],
     "Claims": {
@@ -176,7 +176,7 @@ I recommend you bind these settings directly from appSettings.json:
     }
   },
   {
-    "Token": "SecretTokenQuery102",
+    "Token": "SecretTokenQwerty102",
     "Username": "sharepointworkflow",
     "Roles": [ "Admin" ],
     "Claims": {
