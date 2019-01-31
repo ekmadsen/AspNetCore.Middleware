@@ -204,7 +204,7 @@ In Startup.ConfigureServices, enable custom policies:
 Services.AddAuthorization(Options => Options.UseErikTheCoderPolicies());
 ```
 
-Control access to controllers using the Policy attribute on the controller or controller method:
+Limit access to controllers using the Policy attribute on the controller class or controller method:
 
 ```C#
 namespace ErikTheCoder.Identity.Service.Controllers
