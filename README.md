@@ -141,6 +141,14 @@ Services.AddAuthentication(AuthenticationHandler.AuthenticationScheme).AddErikTh
 });
 ```
 
+In your AJAX, older, or otherwise limited client, call the service by adding an HTTP request header:
+
+```
+Authorization: ErikTheCoder Token
+```
+
+Where "Token" is replaced by a secret string configured on the client and the service (typically in the project's appSettings.json file).
+
 In Startup.ConfigureServices, enable custom policies:
 
 ```C#
