@@ -166,7 +166,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
 }
 ```
 
-I recommend you bind these settings directly from appSettings.json:
+I recommend you bind these settings directly from the service's appSettings.json file:
 
 ```Json
 "AuthenticationIdentities": [
