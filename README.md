@@ -1,5 +1,5 @@
 # AspNetCore.Middleware
-Middleware injected into ASP.NET Core pipeline at startup.
+Middleware injected into the ASP.NET Core pipeline at startup.
 
 
 # Motivation #
