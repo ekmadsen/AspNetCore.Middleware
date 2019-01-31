@@ -34,12 +34,12 @@ In the Startup constructor, inject the HostingEnvironment dependency:
 ```C#
 public class Startup
 {
-    private readonly IHostingEnvironment _hostingEvnEnvironment;
+    private readonly IHostingEnvironment _hostingEnvironment;
 
 
     public Startup(IHostingEnvironment HostingEnvironment)
     {
-        _hostingEvnEnvironment = HostingEnvironment;
+        _hostingEnvironment = HostingEnvironment;
     }
 ```
 
