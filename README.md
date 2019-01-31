@@ -165,7 +165,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
 
 I recommend you bind these settings directly from appSettings.json:
 
-```JSON
+```json
 "AuthenticationIdentities": [
   {
     "Token": "SecretTokenQwert101",
