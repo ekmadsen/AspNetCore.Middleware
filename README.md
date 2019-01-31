@@ -46,6 +46,7 @@ public class Startup
 In Startup.Configure, enable custom client package URL paths:
 
 ```C#
+const string clientPackagesPath = "/clientpackages";
 // Allow static files (css, js).
 ApplicationBuilder.UseStaticFiles();
 ApplicationBuilder.UseErikTheCoderClientPackages(Options =>
@@ -58,7 +59,6 @@ ApplicationBuilder.UseErikTheCoderClientPackages(Options =>
 In Startup.Configure, enable automatic logging, including ignoring or truncating certain URLs:
 
 ```C#
-const string clientPackagesPath = "/clientpackages";
 ApplicationBuilder.UseErikTheCoderLogging(Options =>
 {
     Options.LogRequestParameters = Program.AppSettings.Logger.TraceLogLevel == LogLevel.Debug;
