@@ -71,7 +71,7 @@ ApplicationBuilder.UseErikTheCoderLogging(Options =>
 });
 ```
 
-Truncation means to consider access to /Widget/Display/101 and /Widget/Display/102 as two page hits to the same /Widget/Display URL.  In other words, the last URL segment (the ID) is truncated from the URL path recorded in the logs.
+Truncation means to consider access to /widget/display/101 and /widget/display/102 as two page hits to the same /Widget/Display URL.  In other words, the last URL segment (the ID) is truncated from the URL path recorded in the logs.
 
 In Startup.Configure, enable automatic exception handling.  This code redirects to an error page in a Production environment, which may display a user-friendly error message without any security-sensitive details.  In non-Production evironments, it displays exception details formatted as HTML:
 
