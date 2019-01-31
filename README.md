@@ -29,6 +29,20 @@ Reference this component in your solution via its [NuGet package](https://www.nu
 
 # Usage #
 
+In the Startup constructor, inject the HostingEnvironment dependency:
+
+```C#
+public class Startup
+{
+    private readonly IHostingEnvironment _hostingEvnEnvironment;
+
+
+    public Startup(IHostingEnvironment HostingEnvironment)
+    {
+        _hostingEvnEnvironment = HostingEnvironment;
+    }
+```
+
 In Startup.Configure, enable custom client package URL paths:
 
 ```C#
@@ -37,7 +51,7 @@ ApplicationBuilder.UseStaticFiles();
 ApplicationBuilder.UseErikTheCoderClientPackages(Options =>
 {
     Options.RequestUrlPath = clientPackagesPath;
-    Options.FilePath = Path.Combine(_hostingEvnEnvironment.ContentRootPath, "node_modules");
+    Options.FilePath = Path.Combine(_hostingEnvironment.ContentRootPath, "node_modules");
 });
 ```
 
