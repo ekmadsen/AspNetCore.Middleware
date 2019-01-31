@@ -1,6 +1,7 @@
 # AspNetCore.Middleware
 Middleware injected into ASP.NET Core pipeline at startup
 
+
 # Motivation #
 
 I was motived to write my own middleware components for the following reasons.
@@ -9,6 +10,7 @@ I was motived to write my own middleware components for the following reasons.
 2. I wanted to place the boilerplate code that implements features commonly required by websites and services in a single solution, compile and deploy the solution as a [NuGet package](https://www.nuget.org/packages/ErikTheCoder.AspNetCore.Middleware/), and reference it in all my ASP.NET Core website and service projects.  This avoids duplicating the common features in the source code of every ASP.NET Core project.
 3. I needed to overcome a ridiculous limitation in SharePoint workflow, where workflow variables cannot exceed 255 characters.  Because JWT security tokens are longer than 255 characters, I could not authenticate to custom REST / JSON services I had written using ASP.NET Core Web API.  My [AuthenticationHandler](https://github.com/ekmadsen/AspNetCore.Middleware/blob/master/AspNetCore.Middleware/AuthenticationHandler.cs) class overcomes this limitation by intercepting Authorization tokens prior to executing the default JWT authentication handler.
 4. Regarding the "build versus buy versus download free component" decision, my reasons for writing my own ASP.NET Core middleware are the same as what I stated in points 3 - 6 in my [Logging ReadMe](https://github.com/ekmadsen/Logging/blob/master/README.md#motivation).
+
 
 # Features #
 
@@ -26,6 +28,7 @@ You'll see me use the word *automatic* often here.  That's the point of this mid
 # Installation #
 
 Reference this component in your solution via its [NuGet package](https://www.nuget.org/packages/ErikTheCoder.AspNetCore.Middleware/).
+
 
 # Usage #
 
@@ -186,7 +189,7 @@ I recommend you bind these settings directly from appSettings.json:
 ]
 ```
 
-In your AJAX, older, or otherwise limited client, call the service by adding an HTTP request header:
+In your AJAX, older, or otherwise limited clients, call the service by adding an HTTP request header:
 
 ```
 Authorization: ErikTheCoder Token
@@ -199,6 +202,16 @@ In Startup.ConfigureServices, enable custom policies:
 ```C#
 // Require authorization (permission to access controller actions) using custom claims.
 Services.AddAuthorization(Options => Options.UseErikTheCoderPolicies());
+```
+
+Control access to controllers using the Policy attribute on the controller or controller method:
+
+```C#
+namespace ErikTheCoder.Identity.Service.Controllers
+{
+    [Authorize(Policy = Policy.Admin)]
+    [Route("account")]
+    public class AccountController : ControllerBase, IAccountService
 ```
 
 # Benefits #
