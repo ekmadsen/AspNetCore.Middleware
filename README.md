@@ -21,16 +21,114 @@ You'll see me use the word *automatic* often here.  That's the point of this mid
 * UseErikTheCoderExceptionHandling() enables automatic logging of all uncaught page and service method exceptions.  It responds to the caller with exception details formatted as JSON (for services) or HTML (for websites). This enables exception details to flow from a SQL database through a service to a website, displaying a full cross-process stack trace (related by CorrelationId) in the web browser. This greatly reduces the time it takes for a programmer to identify the root cause of application exceptions.
 * AddErikTheCoderAuthentication enables custom authentication tokens that are mapped to a given user account with given roles and claims.  This allows a client to authenticate to a service by sending a simple "Authorization: ErikTheCoder Token" HTTP header, where "Token" is replaced by a secret string configured on the client and the service (typically in the project's appSettings.json file). The service constructs a ClaimsPrincipal with the given identity, attaches the given roles and claims, and updates the User object on the current HttpContext.Request.  Authorization proceeds normally in the ASP.NET Core pipeline, with policies examining this updated User identity to decide whether to grant access or not.  This is a convenient way to authenticate older clients or otherwise limited clients, such as the SharePoint workflow engine.
 * UseErikTheCoderPolicies implements a couple trivial policies: Admin and Everyone.  I intend to add more common policies here so I don't write them again and again in mulitiple ASP.NET Core projects.
- 
-
-# Limitations #
 
 
 # Installation #
 
+Reference this component in your solution via its [NuGet package](https://www.nuget.org/packages/ErikTheCoder.AspNetCore.Middleware/).
 
 # Usage #
 
+In Startup.Configure, enable custom client package URL paths:
+
+```C#
+// Allow static files (css, js).
+ApplicationBuilder.UseStaticFiles();
+ApplicationBuilder.UseErikTheCoderClientPackages(Options =>
+{
+    Options.RequestUrlPath = clientPackagesPath;
+    Options.FilePath = Path.Combine(_hostingEvnEnvironment.ContentRootPath, "node_modules");
+});
+```
+
+In Startup.Configure, enable automatic logging, including ignoring or truncating certain URLs:
+
+```C#
+const string clientPackagesPath = "/clientpackages";
+ApplicationBuilder.UseErikTheCoderLogging(Options =>
+{
+    Options.LogRequestParameters = Program.AppSettings.Logger.TraceLogLevel == LogLevel.Debug;
+    Options.IgnoreUrls.Add(clientPackagesPath);
+    Options.IgnoreUrls.Add("/css");
+    Options.IgnoreUrls.Add("/images");
+    Options.IgnoreUrls.Add("/js");
+    Options.IgnoreUrls.Add("/favicon");
+    Options.TruncateUrls.Add("/widget/display");
+});
+```
+
+Truncation means to consider access to /Widget/Display/101 and /Widget/Display/102 as two page hits to the same /Widget/Display URL.  In other words, the last URL segment (the ID) is truncated from the URL path recorded in the logs.
+
+In Startup.Configure, enable automatic exception handling.  This code redirects to an error page in a Production environment, which may display a user-friendly error message without any security-sensitive details.  In non-Production evironments, it displays exception details formatted as HTML:
+
+```C#
+// Configure exception handling.
+if (_hostingEvnEnvironment.IsEnvironment(EnvironmentName.Prod))
+{
+    ApplicationBuilder.UseErikTheCoderExceptionHandling(Options =>
+    {
+        Options.AppName = Program.AppSettings.Logger.AppName;
+        Options.ProcessName = Program.AppSettings.Logger.ProcessName;
+        Options.ResponseHandler = (HttpContext, Exception) => HttpContext.Response.Redirect($"/error/display/{Exception.CorrelationId}");
+    });
+}
+else
+{
+    ApplicationBuilder.UseBrowserLink();
+    ApplicationBuilder.UseErikTheCoderExceptionHandling(Options =>
+    {
+        Options.AppName = Program.AppSettings.Logger.AppName;
+        Options.ProcessName = Program.AppSettings.Logger.ProcessName;
+        Options.ExceptionResponseFormat = ExceptionResponseFormat.Html;
+        Options.IncludeDetails = true;
+    });
+}
+```
+
+For services, format exception details as JSON:
+
+```C#
+Options.ExceptionResponseFormat = ExceptionResponseFormat.Json;
+```
+
+In Startup.ConfigureServices, enable custom authentication tokens that fallback to JWT token authentication when no matching custom token is found:
+
+```C#
+// Require custom or JWT authentication token.
+// The JWT token specifies the security algorithm used when it was signed (by Identity service).
+Services.AddAuthentication(AuthenticationHandler.AuthenticationScheme).AddErikTheCoderAuthentication(Options =>
+{
+    Options.Identities = Program.AppSettings.AuthenticationIdentities;
+    Options.ForwardDefaultSelector = HttpContext =>
+    {
+        // Forward to JWT authentication if custom token is not present.
+        string token = string.Empty;
+        if (HttpContext.Request.Headers.TryGetValue(AuthenticationHandler.HttpHeaderName, out StringValues authorizationValues)) token = authorizationValues.ToString();
+        return token.StartsWith(AuthenticationHandler.TokenPrefix)
+            ? AuthenticationHandler.AuthenticationScheme
+            : JwtBearerDefaults.AuthenticationScheme;
+    };
+})
+.AddJwtBearer(Options =>
+{
+    Options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Program.AppSettings.CredentialSecret)),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.FromMinutes(_clockSkewMinutes)
+    };
+});
+```
+
+In Startup.ConfigureServices, enable custom policies:
+
+```C#
+// Require authorization (permission to access controller actions) using custom claims.
+Services.AddAuthorization(Options => Options.UseErikTheCoderPolicies());
+```
 
 # Benefits #
 
