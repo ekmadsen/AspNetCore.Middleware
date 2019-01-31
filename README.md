@@ -105,7 +105,7 @@ For services, format exception details as JSON:
 Options.ExceptionResponseFormat = ExceptionResponseFormat.Json;
 ```
 
-This enables the exception handling middleware to parse the JSON response into a [SimpleException](https://github.com/ekmadsen/Logging/blob/master/Logging/SimpleException.cs) object and include as the InnerException property.  The middleware then logs the exception (including the InnerException that contains service exception details) and responds to the caller, formatting the response again as JSON (for services) or as HTML (for websites).  This enables a solution to daisy-chain together an arbitrary number of service layers, all of which pass exception details to their callers.
+This enables the exception handling middleware to parse the JSON response into a [SimpleException](https://github.com/ekmadsen/Logging/blob/master/Logging/SimpleException.cs) object and include it as the InnerException property.  The middleware then logs the exception (including the InnerException that contains service exception details) and responds to the caller, formatting the response again as JSON (for services) or as HTML (for websites).  This enables a solution to daisy-chain together an arbitrary number of service layers, all of which pass exception details to their callers.
 
 In Startup.ConfigureServices, enable custom authentication tokens that fallback to JWT token authentication when no matching custom token is found:
 
