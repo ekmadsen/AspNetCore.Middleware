@@ -12,7 +12,7 @@ I was motived to write my own middleware components for the following reasons.
 
 # Features #
 
-You'll see me use the word *automatic* often here.  That's the point of this middleware code: enable automatic features that relieve the programmer from manually implementing these feature again in again, in every project, controller, and method.
+You'll see me use the word *automatic* often here.  That's the point of this middleware: enable automatic features that relieve the programmer from manually implementing these feature again in again, in every project, controller, and method.
 
 * Targets .NET Standard 2.0 so it may be used in .NET Core or .NET Framework runtimes.
 * Follows the .UseFeature() idiom recommended by Microsoft when configuration websites and service in the Startup class.
