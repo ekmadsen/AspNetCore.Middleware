@@ -192,10 +192,8 @@ I recommend you bind these settings directly from the service's appSettings.json
 In your AJAX, older, or otherwise limited clients, call the service by adding an HTTP request header:
 
 ```
-Authorization: ErikTheCoder Token
+Authorization: ErikTheCoder SecretTokenQwerty101
 ```
-
-Where "Token" is replaced by a secret string configured on the client and the service (typically in the project's appSettings.json file).
 
 In Startup.ConfigureServices, enable custom policies:
 
