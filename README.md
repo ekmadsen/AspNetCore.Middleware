@@ -16,7 +16,7 @@ I was motived to write my own middleware components for the following reasons.
 
 I'll use word *automatic* often here.  That's the point of my middleware: enable automatic features that relieve the programmer from manually implementing these features again and again, in every project, controller, and method.
 
-* Targets .NET Standard 2.0 so it may be used in .NET Core or .NET Framework runtimes.
+* **Targets .NET Standard 2.0** so it may be used in .NET Core or .NET Framework runtimes.
 * **Follows the .UseFeature() idiom** recommended by Microsoft when configuring websites and services in the Startup class.
 * **UseErikTheCoderClientPackages() enables mapping a URL to a physical location on disk**.  This allows you to customize the URLs used by Javascript client packages.  For example, using /clientpackages/bootstrap instead of /node_modules/bootstrap.
 * **UseErikTheCoderLogging() enables automatic logging of page and service method invocations** (page hits and service method calls).  It also automatically retrieves the correlation ID from HTTP request headers so logs across application layers are related by a GUID, or if not found, it inserts a new GUID into the HTTP request headers.  See my [ServiceProxy](https://github.com/ekmadsen/ServiceProxy) solution, which, among other features, automatically inserts a GUID correlation ID into the HTTP requests sent by Refit service proxies.
