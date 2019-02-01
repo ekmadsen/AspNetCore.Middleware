@@ -189,10 +189,17 @@ I recommend you bind these settings directly from the service's appSettings.json
 ]
 ```
 
-In your AJAX, older, or otherwise limited clients, call the service by adding an HTTP request header:
+In your AJAX, older, or otherwise limited clients, call the service by adding an HTTP request header.  To authentication as the "webpool" user:
 
 ```
 Authorization: ErikTheCoder SecretTokenQwerty101
+```
+
+To authenticate as the "sharepointworkflow" user:
+
+
+```
+Authorization: ErikTheCoder SecretTokenQwerty102
 ```
 
 In Startup.ConfigureServices, enable custom policies:
