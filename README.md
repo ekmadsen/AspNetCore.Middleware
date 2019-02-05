@@ -223,7 +223,7 @@ namespace ErikTheCoder.Identity.Service.Controllers
 
 See the [Benefits section](https://github.com/ekmadsen/Logging#benefits-reading-logs) of my Logging ReadMe for example SQL statements and screenshots that illustrate how to retrieve tracing, performance, and metric logs from the Logging database or from .csv text files opened in Microsoft Excel.
 
-The exception handling middleware enables exception details to flow from a SQL database through one or many services to a website, displaying a full cross-process stack trace (related by CorrelationId) in the web browser and in the logs. It's manifestly clear from this stack trace that failure to check the uniqueness of the new user's email address caused the folowing exception:
+The exception handling middleware enables exception details to flow from a SQL database through one or many services to a website, displaying a full cross-process stack trace (related by CorrelationId) in the web browser and in the logs. It's manifestly clear from this stack trace that failure to check the uniqueness of the new user's email address caused the following exception:
 
 ```
 Exception Type =             ErikTheCoder.Logging.SimpleException
