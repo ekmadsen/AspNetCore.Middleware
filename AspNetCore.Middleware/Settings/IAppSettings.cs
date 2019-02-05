@@ -9,14 +9,15 @@ namespace ErikTheCoder.AspNetCore.Middleware.Settings
     {
         [UsedImplicitly] DatabaseLoggerSettings Logger { get; [UsedImplicitly] set; }
         [UsedImplicitly] EmailSettings Email { get; [UsedImplicitly] set; }
+        [UsedImplicitly] AccountSettings Account { get; [UsedImplicitly] set; }
         [UsedImplicitly] string Database { get; [UsedImplicitly] set; }
         [UsedImplicitly] ServiceProxySettings ServiceProxies { get; [UsedImplicitly] set; }
         [UsedImplicitly] AuthenticationIdentities AuthenticationIdentities { get; set; }
         [UsedImplicitly] string CredentialSecret { get; [UsedImplicitly] set; }
         [UsedImplicitly] int AdminCredentialExpirationMinutes { get; [UsedImplicitly] set; }
         [UsedImplicitly] int NonAdminCredentialExpirationMinutes { get; [UsedImplicitly] set; }
-        [UsedImplicitly] bool EnableHttpContextFilter { get; [UsedImplicitly] set; }
         [UsedImplicitly] int ShortTermCacheExpirationMinutes { get; [UsedImplicitly] set; }
         [UsedImplicitly] int LongTermCacheExpirationMinutes { get; [UsedImplicitly] set; }
+        [UsedImplicitly] bool EnableHttpContextFilter { get; [UsedImplicitly] set; }
     }
 }

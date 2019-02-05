@@ -10,6 +10,5 @@ namespace ErikTheCoder.AspNetCore.Middleware.Settings
         [UsedImplicitly] string Username { get; set; }
         [UsedImplicitly] string Password { get; set; }
         [UsedImplicitly] string From { get; set; }
-        [UsedImplicitly] string ConfirmationUrl { get; set; }
     }
 }
