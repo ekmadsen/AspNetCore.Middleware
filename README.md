@@ -189,7 +189,7 @@ I recommend you bind these settings directly from the service's appSettings.json
 ]
 ```
 
-In your AJAX, older, or otherwise limited clients, call the service by adding an HTTP request header.  To authentication as the "webpool" user:
+In your AJAX, older, or otherwise limited clients, call the service by adding an HTTP request header.  To authenticate as the "webpool" user:
 
 ```
 Authorization: ErikTheCoder SecretTokenQwerty101
