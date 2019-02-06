@@ -62,6 +62,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
         public static void UseErikTheCoderPolicies(this AuthorizationOptions AuthorizationOptions)
         {
             AuthorizationOptions.AddPolicy(Policy.Admin, Policy.VerifyAdmin);
+            AuthorizationOptions.AddPolicy(Policy.TheBigLebowski, Policy.VerifyTheBigLebowski);
             AuthorizationOptions.AddPolicy(Policy.Everyone, Policy.VerifyEveryone);
         }
     }
