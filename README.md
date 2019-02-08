@@ -2,7 +2,7 @@
 Middleware injected into the ASP.NET Core pipeline at startup.
 
 
-## Motivation ##
+## Motivation
 
 I was motived to write my own middleware components for the following reasons.
 
@@ -12,7 +12,7 @@ I was motived to write my own middleware components for the following reasons.
 4. Regarding the "build versus buy versus download free component" decision, my reasons for writing my own ASP.NET Core middleware are the same as what I stated in points 3 - 6 in my [Logging ReadMe](https://github.com/ekmadsen/Logging/blob/master/README.md#motivation).
 
 
-## Features ##
+## Features
 
 I'll use the word *automatic* often here.  That's the point of my middleware: enable automatic features that relieve the programmer from manually implementing these features again and again, in every project, controller, and method.
 
@@ -25,14 +25,14 @@ I'll use the word *automatic* often here.  That's the point of my middleware: en
 * **UseErikTheCoderPolicies implements a couple trivial policies**: Admin and Everyone.  I intend to add more common policies here so I don't write them again and again in multiple ASP.NET Core projects.
 
 
-## Installation ##
+## Installation
 
 Reference this component in your solution via its [NuGet package](https://www.nuget.org/packages/ErikTheCoder.AspNetCore.Middleware/).
 
 
-## Usage ##
+## Usage
 
-### Dependency Injection ###
+### Dependency Injection
 
 In the Startup constructor, inject the HostingEnvironment dependency:
 
@@ -48,7 +48,7 @@ public class Startup
     }
 ```
 
-### Client Package Paths ###
+### Client Package Paths
 
 In Startup.Configure, map client package URL paths to physical disk paths:
 
@@ -63,7 +63,7 @@ ApplicationBuilder.UseErikTheCoderClientPackages(Options =>
 });
 ```
 
-### Automatic Logging ###
+### Automatic Logging
 
 In Startup.Configure, enable automatic logging of all HTTP requests, including ignoring or truncating certain URLs:
 
@@ -82,7 +82,7 @@ ApplicationBuilder.UseErikTheCoderLogging(Options =>
 
 Truncation means to consider requests to /widget/display/101 and /widget/display/102 as two requests to the same /widget/display URL.  In other words, the last URL segment (the ID) is truncated from the URL path recorded in the logs.
 
-### Automatic Exception Handling ###
+### Automatic Exception Handling
 
 In Startup.Configure, enable automatic exception handling.  This code redirects to an error page in a Production environment, which may display a user-friendly error message without any security-sensitive details.  In non-Production evironments, it displays exception details formatted as HTML:
 
@@ -120,7 +120,7 @@ This enables exception handling middleware running in the client (a web or servi
 
 By *recursively*, I mean if a SimpleException contains an InnerException, and that SimpleException contains an InnerException, and that SimpleException contains an InnerException, etc... all the exceptions are logged and formatted.
 
-### Custom Authentication Tokens ###
+### Custom Authentication Tokens
 
 In Startup.ConfigureServices, enable custom authentication tokens that fallback to JWT token authentication when no matching custom token is found:
 
@@ -212,7 +212,7 @@ To authenticate as the "sharepointworkflow" user:
 Authorization: ErikTheCoder SecretTokenQwerty102
 ```
 
-### Custom Security Policies ###
+### Custom Security Policies
 
 In Startup.ConfigureServices, enable custom security policies:
 
@@ -230,13 +230,13 @@ namespace ErikTheCoder.Identity.Service.Controllers
     [Route("account")]
     public class AccountController : ControllerBase, IAccountService
 ```
-## Benefits ##
+## Benefits
 
 The logging and exception handling middleware removes the burden from developers to insert code that logs HTTP request details and catches exception into every MVC or WebAPI controller action. 
 
 See the [Benefits section](https://github.com/ekmadsen/Logging#benefits-reading-logs) of my Logging ReadMe for example SQL statements and screenshots that illustrate how to retrieve tracing, performance, and metric logs from the Logging database or from .csv text files opened in Microsoft Excel.
 
-### Full Cross-Process Stack Trace ###
+### Full Cross-Process Stack Trace
 
 The exception handling middleware enables exception details to flow from a SQL database through one or many services to a website, displaying a full cross-process stack trace (related by CorrelationId) in the web browser and in the logs. It's manifestly clear from this stack trace that failure to check the uniqueness of the new user's email address caused the following exception:
 
