@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using ErikTheCoder.Logging;
 using ErikTheCoder.ServiceContract;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication;
@@ -9,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using AuthenticationOptions = ErikTheCoder.AspNetCore.Middleware.Options.AuthenticationOptions;
+using ILogger = ErikTheCoder.Logging.ILogger;
 
 
 namespace ErikTheCoder.AspNetCore.Middleware
@@ -19,15 +22,31 @@ namespace ErikTheCoder.AspNetCore.Middleware
         public const string AuthenticationScheme = "ErikTheCoder Token";
         [UsedImplicitly] public const string HttpHeaderName = "Authorization";
         [UsedImplicitly] public const string TokenPrefix = "ErikTheCoder ";
+        private readonly ILogger _logger;
 
 
-        public AuthenticationHandler(IOptionsMonitor<AuthenticationOptions> Options, ILoggerFactory Logger, UrlEncoder Encoder, ISystemClock Clock)
-            : base(Options, Logger, Encoder, Clock)
+        public AuthenticationHandler(IOptionsMonitor<AuthenticationOptions> Options, ILoggerFactory LoggerFactory, UrlEncoder Encoder, ISystemClock Clock, ILogger Logger)
+            : base(Options, LoggerFactory, Encoder, Clock)
         {
+            _logger = Logger;
         }
 
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
+        {
+            try
+            {
+                return await Authenticate();
+            }
+            catch (Exception exception)
+            {
+                _logger?.Log(Context.GetCorrelationId(), $"Exception occurred in {nameof(AuthenticationHandler)}.  {exception.GetSummary(true, true)}");
+                throw;
+            }
+        }
+
+
+        private async Task<AuthenticateResult> Authenticate()
         {
             if (!Request.Headers.TryGetValue(HttpHeaderName, out StringValues authorizationValues)) return await Task.FromResult(AuthenticateResult.Fail($"{HttpHeaderName} header not found.")); // Indicate failure.
             string token = authorizationValues.ToString();

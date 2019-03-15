@@ -21,13 +21,6 @@ namespace ErikTheCoder.AspNetCore.Middleware
         [UsedImplicitly]
         public static void Enable(IApplicationBuilder ApplicationBuilder, ExceptionHandlingOptions Options)
         {
-            if (Options.ResponseHandler != null)
-            {
-                if (Options.ExceptionResponseFormat.HasValue || Options.IncludeDetails)
-                {
-                    throw new ArgumentException($"If setting an {nameof(Options.ResponseHandler)}, do not set an {nameof(Options.ExceptionResponseFormat)} or set {nameof(Options.IncludeDetails)} to true.");
-                }
-            }
             ApplicationBuilder.UseExceptionHandler(AlternatePipeline  =>
             {
                 // Run terminates the middleware pipeline.
@@ -50,6 +43,13 @@ namespace ErikTheCoder.AspNetCore.Middleware
 
         private static async Task HandleException(HttpContext Context, ExceptionHandlingOptions Options, ILogger Logger)
         {
+            if (Options.ResponseHandler != null)
+            {
+                if (Options.ExceptionResponseFormat.HasValue || Options.IncludeDetails)
+                {
+                    throw new ArgumentException($"If setting an {nameof(Options.ResponseHandler)}, do not set an {nameof(Options.ExceptionResponseFormat)} or set {nameof(Options.IncludeDetails)} to true.");
+                }
+            }
             // Get correlation ID.
             Guid correlationId = Context.GetCorrelationId();
             // Get exception.
