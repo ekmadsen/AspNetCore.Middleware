@@ -50,6 +50,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
         {
             if (!Request.Headers.TryGetValue(HttpHeaderName, out StringValues authorizationValues)) return await Task.FromResult(AuthenticateResult.Fail($"{HttpHeaderName} header not found.")); // Indicate failure.
             string token = authorizationValues.ToString();
+            // TODO: Replace foreach-if with a key lookup.
             foreach (AuthenticationIdentity authenticationIdentity in Options.Identities)
             {
                 if (token == $"{TokenPrefix}{authenticationIdentity.Token}")
