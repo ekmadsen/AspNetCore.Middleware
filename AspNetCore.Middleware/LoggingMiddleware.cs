@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using System.Threading.Tasks;
 using ErikTheCoder.AspNetCore.Middleware.Options;
 using ErikTheCoder.Logging;
 using ErikTheCoder.ServiceContract;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
 
@@ -17,14 +22,16 @@ namespace ErikTheCoder.AspNetCore.Middleware
         private readonly ILogger _logger;
         private readonly LoggingOptions _options;
         private readonly RequestDelegate _next;
+        private readonly IOptionsMonitor<CookieAuthenticationOptions> _cookieAuthenticationOptions;
         private readonly HashSet<string> _sensitivePhrases;
 
 
-        public LoggingMiddleware(ILogger Logger, LoggingOptions Options, RequestDelegate Next)
+        public LoggingMiddleware(ILogger Logger, LoggingOptions Options, RequestDelegate Next, IOptionsMonitor<CookieAuthenticationOptions> CookieAuthenticationOptions = null)
         {
             _logger = Logger;
             _options = Options;
             _next = Next;
+            _cookieAuthenticationOptions = CookieAuthenticationOptions;
             _sensitivePhrases = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase) { "password" };
         }
 
@@ -32,12 +39,26 @@ namespace ErikTheCoder.AspNetCore.Middleware
         [UsedImplicitly]
         public async Task InvokeAsync(HttpContext Context)
         {
-            if (_logger is null)
+            if (_logger == null)
             {
                 // Call next middleware component and return.
                 await _next(Context);
                 return;
             }
+            try
+            {
+                await Log(Context);
+            }
+            catch (Exception exception)
+            {
+                _logger?.Log(Context.GetCorrelationId(), $"Exception occurred in {nameof(LoggingMiddleware)}.  {exception.GetSummary(true, true)}");
+                throw;
+            }
+        }
+
+
+        private async Task Log(HttpContext Context)
+        {
             string requestPath = Context.Request.Path.ToString();
             if (_options.IgnoreUrls.Count > 0)
             {
@@ -53,71 +74,121 @@ namespace ErikTheCoder.AspNetCore.Middleware
                     }
                 }
             }
-            // Get correlation ID.
-            Guid correlationId;
-            if (Context.Request.Headers.ContainsKey(CustomHttpHeader.CorrelationId))
-            {
-                correlationId = Guid.Parse(Context.Request.Headers[CustomHttpHeader.CorrelationId][0]);
-            }
-            else
-            {
-                // Create new correlation ID HTTP header.
-                correlationId = Guid.NewGuid();
-                Context.Request.Headers[CustomHttpHeader.CorrelationId] = correlationId.ToString();
-            }
-            // Log request path and content type.
-            _logger.Log(correlationId, $"Request path = {requestPath}.");
-            _logger.Log(correlationId, $"Request HTTP verb = {Context.Request.Method}.");
-            _logger.Log(correlationId, $"Request content type = {Context.Request.ContentType}.");
-            _logger.Log(correlationId, $"Request user = {Context.User.Identity.Name}.");
-            // Avoid the expense of reading the request body unless necessary.
-            if (_options.LogRequestParameters)
-            {
-                // Log header, query, and form parameters.
-                // Avoid logging sensitive phrases.
-                foreach (KeyValuePair<string, StringValues> headerParameter in Context.Request.Headers)
-                {
-                    if (_sensitivePhrases.Contains(headerParameter.Key)) continue;
-                    _logger.Log(correlationId, $"Header Key = {headerParameter.Key}, Values = {string.Join(", ", headerParameter.Value)}");
-                }
-                foreach (KeyValuePair<string, StringValues> queryParameter in Context.Request.Query)
-                {
-                    if (_sensitivePhrases.Contains(queryParameter.Key)) continue;
-                    _logger.Log(correlationId, $"Query Key = {queryParameter.Key}, Values = {string.Join(", ", queryParameter.Value)}");
-                }
-                if (Context.Request.HasFormContentType)
-                {
-                    foreach (KeyValuePair<string, StringValues> formParameter in Context.Request.Form)
-                    {
-                        if (_sensitivePhrases.Contains(formParameter.Key)) continue;
-                        _logger.Log(correlationId, $"Form Key = {formParameter.Key}, Values = {string.Join(", ", formParameter.Value)}");
-                    }
-                }
-            }
-            // Log metrics.
-            string truncatedPath = requestPath;
-            if (_options.TruncateUrls.Count > 0)
-            {
-                foreach (string truncateUrl in _options.TruncateUrls)
-                {
-                    string truncateCanonicalUrl = truncateUrl.StartsWith("/") ? truncateUrl : $"/{truncateUrl}";
-                    if (requestPath.StartsWith(truncateCanonicalUrl, StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        // Truncate URL.
-                        truncatedPath = truncateCanonicalUrl;
-                        break;
-                    }
-                }
-            }
-            _logger.LogMetric(correlationId, truncatedPath, "Page Hit", 1);
-            _logger.LogMetric(correlationId, truncatedPath, "Page Hit - User", Context.User.Identity.Name ?? "Anonymous");
-            _logger.LogMetric(correlationId, truncatedPath, "Page Hit - Remote IP", Context.Connection.RemoteIpAddress.ToString());
+            Guid correlationId = GetCorrelationId(Context);
+            string truncatedPath = GetTruncatedPath(requestPath);
+            // Log request, FBA cookie, and metrics.
+            LogRequest(Context, correlationId, requestPath);
+            if (_options.LogFbaCookie) LogFbaCookie(Context, correlationId);
+            LogMetrics(Context, correlationId, truncatedPath);
             Stopwatch stopwatch = Stopwatch.StartNew();
             // Call next middleware component.
             await _next(Context);
             stopwatch.Stop();
             // Log performance.
             _logger.LogPerformance(correlationId, truncatedPath, stopwatch.Elapsed);
+        }
+
+
+        private static Guid GetCorrelationId(HttpContext Context)
+        {
+            if (Context.Request.Headers.ContainsKey(CustomHttpHeader.CorrelationId))
+            {
+                return Guid.Parse(Context.Request.Headers[CustomHttpHeader.CorrelationId][0]);
+            }
+            // Create new correlation ID HTTP header.
+            Guid correlationId = Guid.NewGuid();
+            Context.Request.Headers[CustomHttpHeader.CorrelationId] = correlationId.ToString();
+            return correlationId;
+        }
+
+
+        private string GetTruncatedPath(string RequestPath)
+        {
+            if (_options.TruncateUrls.Count > 0)
+            {
+                foreach (string truncateUrl in _options.TruncateUrls)
+                {
+                    string truncateCanonicalUrl = truncateUrl.StartsWith("/") ? truncateUrl : $"/{truncateUrl}";
+                    if (RequestPath.StartsWith(truncateCanonicalUrl, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        // Truncate URL.
+                        return truncateCanonicalUrl;
+                    }
+                }
+            }
+            return RequestPath;
+        }
+
+
+        private void LogRequest(HttpContext Context, Guid CorrelationId, string RequestPath)
+        {
+            _logger.Log(CorrelationId, $"Request path = {RequestPath}.");
+            _logger.Log(CorrelationId, $"Request HTTP verb = {Context.Request.Method}.");
+            _logger.Log(CorrelationId, $"Request content type = {Context.Request.ContentType}.");
+            _logger.Log(CorrelationId, $"Request user = {Context.User.Identity.Name}.");
+            // Avoid the expense of reading the request body unless necessary.
+            if (_options.LogRequestParameters)
+            {
+                // Log header, query, and form parameters.
+                // Avoid logging sensitive phrases.
+                foreach ((string key, StringValues values) in Context.Request.Headers)
+                {
+                    if (_sensitivePhrases.Contains(key)) continue;
+                    _logger.Log(CorrelationId, $"Header Key = {key}, Values = {string.Join(", ", values)}");
+                }
+                foreach ((string key, StringValues values) in Context.Request.Query)
+                {
+                    if (_sensitivePhrases.Contains(key)) continue;
+                    _logger.Log(CorrelationId, $"Query Key = {key}, Values = {string.Join(", ", values)}");
+                }
+                if (Context.Request.HasFormContentType)
+                {
+                    foreach ((string key, StringValues values) in Context.Request.Form)
+                    {
+                        if (_sensitivePhrases.Contains(key)) continue;
+                        _logger.Log(CorrelationId, $"Form Key = {key}, Values = {string.Join(", ", values)}");
+                    }
+                }
+            }
+        }
+
+
+        private void LogMetrics(HttpContext Context, Guid CorrelationId, string TruncatedPath)
+        {
+            _logger.LogMetric(CorrelationId, TruncatedPath, "Page Hit", 1);
+            _logger.LogMetric(CorrelationId, TruncatedPath, "Page Hit - User", Context.User.Identity.Name ?? "Anonymous");
+            _logger.LogMetric(CorrelationId, TruncatedPath, "Page Hit - Remote IP", Context.Connection.RemoteIpAddress.ToString());
+        }
+
+
+        private void LogFbaCookie(HttpContext Context, Guid CorrelationId)
+        {
+            if (_cookieAuthenticationOptions == null) return;
+            // See https://stackoverflow.com/questions/42842511/how-to-manually-decrypt-an-asp-net-core-authentication-cookie
+            // Retrieve encrypted HTTP cookie.
+            string cookieName = $".AspNetCore.{CookieAuthenticationDefaults.AuthenticationScheme}";
+            string encryptedCookie = _cookieAuthenticationOptions.CurrentValue.CookieManager.GetRequestCookie(Context, cookieName);
+            if (!string.IsNullOrEmpty(encryptedCookie))
+            {
+                byte[] encryptedCookieBytes = Base64UrlTextEncoder.Decode(encryptedCookie);
+                // Decrypt cookie and remove control characters.
+                IDataProtector dataProtector = _cookieAuthenticationOptions.CurrentValue.DataProtectionProvider.CreateProtector
+                    ("Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationMiddleware", CookieAuthenticationDefaults.AuthenticationScheme, "v2");
+                byte[] cookieBytes = dataProtector.Unprotect(encryptedCookieBytes);
+                string cookie = Encoding.UTF8.GetString(cookieBytes).RemoveControlCharacters();
+                _logger.Log(CorrelationId, $"FBA Cookie = {cookie}");
+
+                // The above cookie string approximates the data passed from the user's web browser to this web server.
+                // It's an approximation because it was created by a binary serializer that converted an AuthenticationTicket class to a byte array.
+                // See https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authentication.ticketserializer.serialize?view=aspnetcore-2.2.
+
+                // To reconstruct the AuthenticationTicket, do the following:
+                //   TicketDataFormat ticketDataFormat = new TicketDataFormat(dataProtector);
+                //   AuthenticationTicket authenticationTicket = ticketDataFormat.Unprotect(encryptedCookie);
+                // Note that attempting to serialize AuthenticationTicket to JSON using Newtonsoft Json.NET (even with PreserveReferencesHandling.All + IgnoreSerializableInterface)
+                //   causes a "PlatformNotSupportedException: This instance contains state that cannot be serialized and deserialized on this platform" exception.
+                // See https://github.com/JamesNK/Newtonsoft.Json/issues/1713.
+            }
         }
     }
 }

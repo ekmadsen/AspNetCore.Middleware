@@ -31,64 +31,78 @@ namespace ErikTheCoder.AspNetCore.Middleware
             ApplicationBuilder.UseExceptionHandler(AlternatePipeline  =>
             {
                 // Run terminates the middleware pipeline.
-                AlternatePipeline.Run(async HttpContext =>
+                AlternatePipeline.Run(async Context =>
                 {
-                    // Get correlation ID.
-                    Guid correlationId = HttpContext.GetCorrelationId();
-                    // Get exception.
-                    IExceptionHandlerFeature exceptionHandlerFeature = HttpContext.Features.Get<IExceptionHandlerFeature>();
-                    SimpleException innerException;
-                    if (exceptionHandlerFeature.Error is ApiException apiException)
-                    {
-                        // Exception occurred when a Refit proxy called a service method.
-                        // Deserialize exception from JSON response.
-                        try
-                        {
-                            // BUG: Current version of Refit (4.6.58 on 2019 Jan 29) fails to deserialize SimpleException, returning null instead.  This prevents error messages flowing from service to website.
-                            SimpleException refitException = apiException.GetContentAs<SimpleException>() ?? new SimpleException(apiException, correlationId, Options.AppName, Options.ProcessName);
-                            innerException = new SimpleException(refitException, correlationId, Options.AppName, Options.ProcessName,
-                                "An exception occurred when a Refit proxy called a service method.");
-                        }
-                        catch
-                        {
-                            // Ignore exception when deserializing JSON response.
-                            innerException = new SimpleException(apiException, correlationId, Options.AppName, Options.ProcessName);
-                            innerException = new SimpleException(innerException, correlationId, Options.AppName, Options.ProcessName,
-                                $"Failed to deserialize exception from service method response.  Ensure the service's {nameof(ExceptionHandlingMiddleware)} is configured to use {nameof(ExceptionResponseFormat)}.{nameof(ExceptionResponseFormat.Json)}.");
-                        }
-                    }
-                    else
-                    {
-                        innerException = new SimpleException(exceptionHandlerFeature.Error, correlationId, Options.AppName, Options.ProcessName);
-                    }
-                    // Log exception.
-                    SimpleException exception = new SimpleException(innerException, correlationId, Options.AppName, Options.ProcessName,
-                        $"{HttpContext.Request.Method} with {HttpContext.Request.ContentType ?? "unknown"} content type to {HttpContext.Request.Path} resulted in HTTP status code {HttpContext.Response.StatusCode}.");
                     ILogger logger = ApplicationBuilder.ApplicationServices.GetRequiredService<ILogger>();
-                    logger.Log(correlationId, exception);
-					logger.LogMetric(correlationId, HttpContext.Request.Path, "Critical Error", 1);
-                    // Respond to caller.
-                    if (Options.ResponseHandler != null)
+                    try
                     {
-                        // Respond with customer handler.
-                        Options.ResponseHandler(HttpContext, exception);
-                        return;
+                        await HandleException(Context, Options, logger);
                     }
-                    // Respond with HTML or JSON.
-                    // ReSharper disable once SwitchStatementMissingSomeCases
-                    switch (Options.ExceptionResponseFormat)
+                    catch (Exception exception)
                     {
-                        case ExceptionResponseFormat.Html:
-                            await RespondWithHtml(HttpContext, exception, Options.IncludeDetails);
-                            break;
-                        case ExceptionResponseFormat.Json:
-                            await RespondWithJson(HttpContext, exception, Options.IncludeDetails);
-                            break;
-                        default:
-                            throw new Exception($"{nameof(ExceptionResponseFormat)} {Options.ExceptionResponseFormat} not supported.");
+                        logger?.Log(Context.GetCorrelationId(), $"Exception occurred in {nameof(ExceptionHandlingMiddleware)}.  {exception.GetSummary(true, true)}");
+                        throw;
                     }
                 });
             });
+        }
+
+
+        private static async Task HandleException(HttpContext Context, ExceptionHandlingOptions Options, ILogger Logger)
+        {
+            // Get correlation ID.
+            Guid correlationId = Context.GetCorrelationId();
+            // Get exception.
+            IExceptionHandlerFeature exceptionHandlerFeature = Context.Features.Get<IExceptionHandlerFeature>();
+            SimpleException innerException;
+            if (exceptionHandlerFeature.Error is ApiException apiException)
+            {
+                // Exception occurred when a Refit proxy called a service method.
+                // Deserialize exception from JSON response.
+                try
+                {
+                    // BUG: Current version of Refit (4.6.58 on 2019 Jan 29) fails to deserialize SimpleException, returning null instead.  This prevents error messages flowing from service to website.
+                    SimpleException refitException = apiException.GetContentAs<SimpleException>() ?? new SimpleException(apiException, correlationId, Options.AppName, Options.ProcessName);
+                    innerException = new SimpleException(refitException, correlationId, Options.AppName, Options.ProcessName,
+                        "An exception occurred when a Refit proxy called a service method.");
+                }
+                catch
+                {
+                    // Ignore exception when deserializing JSON response.
+                    innerException = new SimpleException(apiException, correlationId, Options.AppName, Options.ProcessName);
+                    innerException = new SimpleException(innerException, correlationId, Options.AppName, Options.ProcessName,
+                        $"Failed to deserialize exception from service method response.  Ensure the service's {nameof(ExceptionHandlingMiddleware)} is configured to use {nameof(ExceptionResponseFormat)}.{nameof(ExceptionResponseFormat.Json)}.");
+                }
+            }
+            else
+            {
+                innerException = new SimpleException(exceptionHandlerFeature.Error, correlationId, Options.AppName, Options.ProcessName);
+            }
+            // Log exception.
+            SimpleException exception = new SimpleException(innerException, correlationId, Options.AppName, Options.ProcessName,
+                $"{Context.Request.Method} with {Context.Request.ContentType ?? "unknown"} content type to {Context.Request.Path} resulted in HTTP status code {Context.Response.StatusCode}.");
+            Logger.Log(correlationId, exception);
+            Logger.LogMetric(correlationId, Context.Request.Path, "Critical Error", 1);
+            // Respond to caller.
+            if (Options.ResponseHandler != null)
+            {
+                // Respond with customer handler.
+                Options.ResponseHandler(Context, exception);
+                return;
+            }
+            // Respond with HTML or JSON.
+            // ReSharper disable once SwitchStatementMissingSomeCases
+            switch (Options.ExceptionResponseFormat)
+            {
+                case ExceptionResponseFormat.Html:
+                    await RespondWithHtml(Context, exception, Options.IncludeDetails);
+                    break;
+                case ExceptionResponseFormat.Json:
+                    await RespondWithJson(Context, exception, Options.IncludeDetails);
+                    break;
+                default:
+                    throw new Exception($"{nameof(ExceptionResponseFormat)} {Options.ExceptionResponseFormat} not supported.");
+            }
         }
 
 
