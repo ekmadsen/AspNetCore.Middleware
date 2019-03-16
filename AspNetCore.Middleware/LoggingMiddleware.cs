@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using ErikTheCoder.AspNetCore.Middleware.Options;
@@ -174,8 +175,19 @@ namespace ErikTheCoder.AspNetCore.Middleware
                 // Decrypt cookie and remove control characters.
                 IDataProtector dataProtector = _cookieAuthenticationOptions.CurrentValue.DataProtectionProvider.CreateProtector
                     ("Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationMiddleware", CookieAuthenticationDefaults.AuthenticationScheme, "v2");
-                byte[] cookieBytes = dataProtector.Unprotect(encryptedCookieBytes);
-                string cookie = Encoding.UTF8.GetString(cookieBytes).RemoveControlCharacters();
+                string cookie;
+                try
+                {
+                    byte[] cookieBytes = dataProtector.Unprotect(encryptedCookieBytes);
+                    cookie = Encoding.UTF8.GetString(cookieBytes).RemoveControlCharacters();
+                }
+                catch (CryptographicException exception)
+                {
+                    // Cookie is signed by expired key.  This may occur if data protection is not configured in web server startup.
+                    // Without data protection configured to persist keys, the web server creates a new key every time it recycles the application pool.
+                    // See https://docs.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview?view=aspnetcore-2.2
+                    cookie = $"Failed to decrypt FBA cookie.  {exception.GetSummary(true, true)}";
+                }
                 _logger.Log(CorrelationId, $"FBA Cookie = {cookie}");
 
                 // The above cookie string approximates the data passed from the user's web browser to this web server.
@@ -185,8 +197,9 @@ namespace ErikTheCoder.AspNetCore.Middleware
                 // To reconstruct the AuthenticationTicket, do the following:
                 //   TicketDataFormat ticketDataFormat = new TicketDataFormat(dataProtector);
                 //   AuthenticationTicket authenticationTicket = ticketDataFormat.Unprotect(encryptedCookie);
-                // Note that attempting to serialize AuthenticationTicket to JSON using Newtonsoft Json.NET (even with PreserveReferencesHandling.All + IgnoreSerializableInterface)
-                //   causes a "PlatformNotSupportedException: This instance contains state that cannot be serialized and deserialized on this platform" exception.
+                // Note that attempting to serialize AuthenticationTicket to JSON (to write to a log file or database) using Newtonsoft Json.NET causes a
+                //   "PlatformNotSupportedException: This instance contains state that cannot be serialized and deserialized on this platform" error.
+                //   This error occurs even with PreserveReferencesHandling.All and IgnoreSerializableInterface.
                 // See https://github.com/JamesNK/Newtonsoft.Json/issues/1713.
             }
         }
