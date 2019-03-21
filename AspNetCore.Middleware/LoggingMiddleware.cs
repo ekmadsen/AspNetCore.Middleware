@@ -33,7 +33,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
             _options = Options;
             _next = Next;
             _cookieAuthenticationOptions = CookieAuthenticationOptions;
-            _sensitivePhrases = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase) { "password" };
+            _sensitivePhrases = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase) { "password", "confirmpassword", "newpassword", "confirmnewpassword" };
         }
 
 
