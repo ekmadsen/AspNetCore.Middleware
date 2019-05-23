@@ -1,7 +1,6 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
-using ErikTheCoder.AspNetCore.Middleware.Settings;
 using JetBrains.Annotations;
 
 
@@ -13,9 +12,9 @@ namespace ErikTheCoder.AspNetCore.Middleware
         private readonly string _connection;
 
 
-        public SqlDatabase(IAppSettings AppSettings)
+        public SqlDatabase(string Connection)
         {
-            _connection = AppSettings.Database;
+            _connection = Connection;
         }
 
 
