@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+﻿using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using ErikTheCoder.AspNetCore.Middleware.Settings;
@@ -19,7 +19,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
         }
 
 
-        public async Task<DbConnection> OpenConnection()
+        public async Task<IDbConnection> OpenConnection()
         {
             SqlConnection connection = new SqlConnection(_connection);
             await connection.OpenAsync();
