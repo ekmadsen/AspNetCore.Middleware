@@ -18,7 +18,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
         }
 
 
-        public async Task<IDbConnection> OpenConnection()
+        public async Task<IDbConnection> OpenConnectionAsync()
         {
             SqlConnection connection = new SqlConnection(_connection);
             await connection.OpenAsync();

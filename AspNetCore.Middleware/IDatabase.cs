@@ -8,6 +8,6 @@ namespace ErikTheCoder.AspNetCore.Middleware
     public interface IDatabase
     {
         [UsedImplicitly]
-        Task<IDbConnection> OpenConnection();
+        Task<IDbConnection> OpenConnectionAsync();
     }
 }
