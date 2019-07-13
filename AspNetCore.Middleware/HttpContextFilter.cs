@@ -27,10 +27,8 @@ namespace ErikTheCoder.AspNetCore.Middleware
             try
             {
                 CorrelationId = Context.HttpContext.GetCorrelationId();
-                ClientIpAddress =
-                    $"{Context.HttpContext.Connection.RemoteIpAddress}:{Context.HttpContext.Connection.RemotePort}";
-                ServerIpAddress =
-                    $"{Context.HttpContext.Connection.LocalIpAddress}:{Context.HttpContext.Connection.RemotePort}";
+                ClientIpAddress = $"{Context.HttpContext.Connection.RemoteIpAddress}:{Context.HttpContext.Connection.RemotePort}";
+                ServerIpAddress = $"{Context.HttpContext.Connection.LocalIpAddress}:{Context.HttpContext.Connection.RemotePort}";
                 User = User.ParseClaims(Context.HttpContext.User.Claims);
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 await Next();
