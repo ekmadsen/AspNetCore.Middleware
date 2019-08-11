@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using ErikTheCoder.Logging;
 using ErikTheCoder.ServiceContract;
+using ErikTheCoder.Utilities;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;

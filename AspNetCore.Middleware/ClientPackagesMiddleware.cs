@@ -1,6 +1,7 @@
 ﻿using System;
 using ErikTheCoder.AspNetCore.Middleware.Options;
 using ErikTheCoder.Logging;
+using ErikTheCoder.Utilities;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using ErikTheCoder.Logging;
 using ErikTheCoder.Utilities;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication;
