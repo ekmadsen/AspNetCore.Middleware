@@ -154,7 +154,7 @@ Services.AddAuthentication(AuthenticationHandler.AuthenticationScheme).AddErikTh
 });
 ```
 
-AuthenticationIdentities is a KeyedCollection<string, AuthenticationIdentity> that maps custom tokens to identites with roles and claims.  (The Key is the Token.)
+AuthenticationIdentities is a KeyedCollection<string, AuthenticationIdentity> that maps custom tokens to identities with roles and claims.  (The Key is the Token.)
 
 ```C#
 namespace ErikTheCoder.AspNetCore.Middleware
