@@ -232,7 +232,7 @@ namespace ErikTheCoder.Identity.Service.Controllers
 ```
 ## Benefits
 
-The logging and exception handling middleware removes the burden from developers to insert code that logs HTTP request details and catches exception into every MVC or WebAPI controller action. 
+The logging and exception handling middleware removes the burden from developers to insert code that logs HTTP request details and catches exceptions into every MVC or WebAPI controller action. 
 
 See the [Benefits section](https://github.com/ekmadsen/Logging#benefits-reading-logs) of my Logging ReadMe for example SQL statements and screenshots that illustrate how to retrieve tracing, performance, and metric logs from the Logging database or from .csv text files opened in Microsoft Excel.
 
