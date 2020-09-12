@@ -1,6 +1,7 @@
 ﻿using System;
 using ErikTheCoder.AspNetCore.Middleware.Options;
 using ErikTheCoder.ServiceContract;
+using ErikTheCoder.Utilities;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -26,8 +27,8 @@ namespace ErikTheCoder.AspNetCore.Middleware
         {
             var options = new ClientPackagesOptions();
             ConfigureOptions?.Invoke(options);
-            if (string.IsNullOrWhiteSpace(options.RequestUrlPath)) throw new Exception($"{nameof(options.RequestUrlPath)} not specified.");
-            if (string.IsNullOrWhiteSpace(options.FilePath)) throw new Exception($"{nameof(options.FilePath)} not specified.");
+            if (options.RequestUrlPath.IsNullOrWhiteSpace()) throw new Exception($"{nameof(options.RequestUrlPath)} not specified.");
+            if (options.FilePath.IsNullOrWhiteSpace()) throw new Exception($"{nameof(options.FilePath)} not specified.");
             ClientPackagesMiddleware.Enable(ApplicationBuilder, options);
         }
 
