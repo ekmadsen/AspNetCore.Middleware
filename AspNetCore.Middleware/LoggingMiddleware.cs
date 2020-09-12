@@ -169,7 +169,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
             // Retrieve encrypted HTTP cookie.
             var cookieName = $".AspNetCore.{CookieAuthenticationDefaults.AuthenticationScheme}";
             var encryptedCookie = _cookieAuthenticationOptions.CurrentValue.CookieManager.GetRequestCookie(Context, cookieName);
-            if (!string.IsNullOrEmpty(encryptedCookie))
+            if (!encryptedCookie.IsNullOrEmpty())
             {
                 var encryptedCookieBytes = Base64UrlTextEncoder.Decode(encryptedCookie);
                 // Decrypt cookie and remove control characters.
