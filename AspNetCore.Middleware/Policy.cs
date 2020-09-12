@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using ErikTheCoder.ServiceContract;
+﻿using ErikTheCoder.ServiceContract;
 using Microsoft.AspNetCore.Authorization;
 
 
@@ -16,7 +15,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
         {
             PolicyBuilder.RequireAssertion(Context =>
             {
-                User user = User.ParseClaims(Context.User.Claims);
+                var user = User.ParseClaims(Context.User.Claims);
                 return user.Roles.Contains(Admin);
             });
         }
@@ -26,12 +25,12 @@ namespace ErikTheCoder.AspNetCore.Middleware
         {
             PolicyBuilder.RequireAssertion(Context =>
             {
-                User user = User.ParseClaims(Context.User.Claims);
-                if (user.Claims.TryGetValue(CustomClaimType.Nickname, out HashSet<string> nicknames))
+                var user = User.ParseClaims(Context.User.Claims);
+                if (user.Claims.TryGetValue(CustomClaimType.Nickname, out var nicknames))
                 {
                     if (nicknames.Contains("The Dude")) 
                     {
-                        if (user.Claims.TryGetValue(CustomClaimType.Ability, out HashSet<string> abilities)) return abilities.Contains("Make White Russian") && abilities.Contains("Abide");
+                        if (user.Claims.TryGetValue(CustomClaimType.Ability, out var abilities)) return abilities.Contains("Make White Russian") && abilities.Contains("Abide");
                     }
                 }
                 return false;

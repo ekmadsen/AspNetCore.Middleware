@@ -18,11 +18,11 @@ namespace ErikTheCoder.AspNetCore.Middleware
         {
             try
             {
-                string requestUrlPath = Options.RequestUrlPath.StartsWith("/")
+                var requestUrlPath = Options.RequestUrlPath.StartsWith("/")
                     ? Options.RequestUrlPath
                     : $"/{Options.RequestUrlPath}";
-                PhysicalFileProvider fileProvider = new PhysicalFileProvider(Options.FilePath);
-                StaticFileOptions staticFileOptions = new StaticFileOptions
+                var fileProvider = new PhysicalFileProvider(Options.FilePath);
+                var staticFileOptions = new StaticFileOptions
                 {
                     RequestPath = requestUrlPath,
                     FileProvider = fileProvider
@@ -31,7 +31,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
             }
             catch (Exception exception)
             {
-                ILogger logger = ApplicationBuilder.ApplicationServices.GetService<ILogger>();
+                var logger = ApplicationBuilder.ApplicationServices.GetService<ILogger>();
                 logger?.Log($"Failed to enable {nameof(ClientPackagesMiddleware)}.  {exception.GetSummary(true, true)}");
                 throw;
             }

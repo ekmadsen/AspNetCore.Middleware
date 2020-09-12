@@ -27,7 +27,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
                 // Run terminates the middleware pipeline.
                 AlternatePipeline.Run(async Context =>
                 {
-                    ILogger logger = ApplicationBuilder.ApplicationServices.GetRequiredService<ILogger>();
+                    var logger = ApplicationBuilder.ApplicationServices.GetRequiredService<ILogger>();
                     try
                     {
                         await HandleException(Context, Options, logger);
@@ -52,9 +52,9 @@ namespace ErikTheCoder.AspNetCore.Middleware
                 }
             }
             // Get correlation ID.
-            Guid correlationId = Context.GetCorrelationId();
+            var correlationId = Context.GetCorrelationId();
             // Get exception.
-            IExceptionHandlerFeature exceptionHandlerFeature = Context.Features.Get<IExceptionHandlerFeature>();
+            var exceptionHandlerFeature = Context.Features.Get<IExceptionHandlerFeature>();
             SimpleException innerException;
             if (exceptionHandlerFeature.Error is ApiException apiException)
             {
@@ -62,7 +62,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
                 // Deserialize exception from JSON response.
                 try
                 {
-                    SimpleException refitException = await apiException.GetContentAsAsync<SimpleException>() ?? new SimpleException(apiException, correlationId, Options.AppName, Options.ProcessName);
+                    var refitException = await apiException.GetContentAsAsync<SimpleException>() ?? new SimpleException(apiException, correlationId, Options.AppName, Options.ProcessName);
                     innerException = new SimpleException(refitException, correlationId, Options.AppName, Options.ProcessName,
                         "An exception occurred when a Refit proxy called a service method.");
                 }
@@ -79,7 +79,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
                 innerException = new SimpleException(exceptionHandlerFeature.Error, correlationId, Options.AppName, Options.ProcessName);
             }
             // Log exception.
-            SimpleException exception = new SimpleException(innerException, correlationId, Options.AppName, Options.ProcessName,
+            var exception = new SimpleException(innerException, correlationId, Options.AppName, Options.ProcessName,
                 $"{Context.Request.Method} with {Context.Request.ContentType ?? "unknown"} content type to {Context.Request.Path} resulted in HTTP status code {Context.Response.StatusCode}.");
             Logger.Log(correlationId, exception);
             Logger.LogMetric(correlationId, Context.Request.Path, "Critical Error", 1);
@@ -108,13 +108,13 @@ namespace ErikTheCoder.AspNetCore.Middleware
 
         private static async Task RespondWithHtml(HttpContext Context, SimpleException Exception, bool IncludeDetails)
         {
-            SimpleException exception = Exception;
+            var exception = Exception;
             if (!IncludeDetails)
             {
                 // Remove inner exception that contains details.
                 exception.InnerException = null;
             }
-            using (StreamWriter streamWriter = new StreamWriter(Context.Response.Body))
+            using (var streamWriter = new StreamWriter(Context.Response.Body))
             {
                 await streamWriter.WriteLineAsync("<html><body style=\"font-family: Consolas, Courier New, Courier New\"; font-size: 10px;><pre>");
                 await streamWriter.WriteLineAsync(exception.GetSummary(true, true));
@@ -125,16 +125,16 @@ namespace ErikTheCoder.AspNetCore.Middleware
 
         private static async Task RespondWithJson(HttpContext Context, SimpleException Exception, bool IncludeDetails)
         {
-            SimpleException exception = Exception;
+            var exception = Exception;
             if (!IncludeDetails)
             {
                 // Remove inner exception that contains details.
                 exception.InnerException = null;
             }
-            JObject serializableException = JObject.FromObject(exception);
-            using (StreamWriter streamWriter = new StreamWriter(Context.Response.Body))
+            var serializableException = JObject.FromObject(exception);
+            using (var streamWriter = new StreamWriter(Context.Response.Body))
             {
-                using (JsonTextWriter jsonWriter = new JsonTextWriter(streamWriter))
+                using (var jsonWriter = new JsonTextWriter(streamWriter))
                 {
                     await serializableException.WriteToAsync(jsonWriter);
                 }

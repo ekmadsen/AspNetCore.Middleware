@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 
 
 namespace ErikTheCoder.AspNetCore.Middleware
@@ -61,12 +60,12 @@ namespace ErikTheCoder.AspNetCore.Middleware
 
         private async Task Log(HttpContext Context)
         {
-            string requestPath = Context.Request.Path.ToString();
+            var requestPath = Context.Request.Path.ToString();
             if (_options.IgnoreUrls.Count > 0)
             {
-                foreach (string ignoreUrl in _options.IgnoreUrls)
+                foreach (var ignoreUrl in _options.IgnoreUrls)
                 {
-                    string ignoreCanonicalUrl = ignoreUrl.StartsWith("/") ? ignoreUrl : $"/{ignoreUrl}";
+                    var ignoreCanonicalUrl = ignoreUrl.StartsWith("/") ? ignoreUrl : $"/{ignoreUrl}";
                     if (requestPath.StartsWith(ignoreCanonicalUrl, StringComparison.CurrentCultureIgnoreCase))
                     {
                         // Ignore URL.
@@ -76,13 +75,13 @@ namespace ErikTheCoder.AspNetCore.Middleware
                     }
                 }
             }
-            Guid correlationId = GetCorrelationId(Context);
-            string truncatedPath = GetTruncatedPath(requestPath);
+            var correlationId = GetCorrelationId(Context);
+            var truncatedPath = GetTruncatedPath(requestPath);
             // Log request, FBA cookie, and metrics.
             LogRequest(Context, correlationId, requestPath);
             if (_options.LogFbaCookie) LogFbaCookie(Context, correlationId);
             LogMetrics(Context, correlationId, truncatedPath);
-            Stopwatch stopwatch = Stopwatch.StartNew();
+            var stopwatch = Stopwatch.StartNew();
             // Call next middleware component.
             await _next(Context);
             stopwatch.Stop();
@@ -98,7 +97,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
                 return Guid.Parse(Context.Request.Headers[CustomHttpHeader.CorrelationId][0]);
             }
             // Create new correlation ID HTTP header.
-            Guid correlationId = Guid.NewGuid();
+            var correlationId = Guid.NewGuid();
             Context.Request.Headers[CustomHttpHeader.CorrelationId] = correlationId.ToString();
             return correlationId;
         }
@@ -108,9 +107,9 @@ namespace ErikTheCoder.AspNetCore.Middleware
         {
             if (_options.TruncateUrls.Count > 0)
             {
-                foreach (string truncateUrl in _options.TruncateUrls)
+                foreach (var truncateUrl in _options.TruncateUrls)
                 {
-                    string truncateCanonicalUrl = truncateUrl.StartsWith("/") ? truncateUrl : $"/{truncateUrl}";
+                    var truncateCanonicalUrl = truncateUrl.StartsWith("/") ? truncateUrl : $"/{truncateUrl}";
                     if (RequestPath.StartsWith(truncateCanonicalUrl, StringComparison.CurrentCultureIgnoreCase))
                     {
                         // Truncate URL.
@@ -133,19 +132,19 @@ namespace ErikTheCoder.AspNetCore.Middleware
             {
                 // Log header, query, and form parameters.
                 // Avoid logging sensitive phrases.
-                foreach ((string key, StringValues values) in Context.Request.Headers)
+                foreach (var (key, values) in Context.Request.Headers)
                 {
                     if (_sensitivePhrases.Contains(key)) continue;
                     _logger.Log(CorrelationId, $"Header Key = {key}, Values = {string.Join(", ", values)}");
                 }
-                foreach ((string key, StringValues values) in Context.Request.Query)
+                foreach (var (key, values) in Context.Request.Query)
                 {
                     if (_sensitivePhrases.Contains(key)) continue;
                     _logger.Log(CorrelationId, $"Query Key = {key}, Values = {string.Join(", ", values)}");
                 }
                 if (Context.Request.HasFormContentType)
                 {
-                    foreach ((string key, StringValues values) in Context.Request.Form)
+                    foreach (var (key, values) in Context.Request.Form)
                     {
                         if (_sensitivePhrases.Contains(key)) continue;
                         _logger.Log(CorrelationId, $"Form Key = {key}, Values = {string.Join(", ", values)}");
@@ -168,18 +167,18 @@ namespace ErikTheCoder.AspNetCore.Middleware
             if (_cookieAuthenticationOptions == null) return;
             // See https://stackoverflow.com/questions/42842511/how-to-manually-decrypt-an-asp-net-core-authentication-cookie
             // Retrieve encrypted HTTP cookie.
-            string cookieName = $".AspNetCore.{CookieAuthenticationDefaults.AuthenticationScheme}";
-            string encryptedCookie = _cookieAuthenticationOptions.CurrentValue.CookieManager.GetRequestCookie(Context, cookieName);
+            var cookieName = $".AspNetCore.{CookieAuthenticationDefaults.AuthenticationScheme}";
+            var encryptedCookie = _cookieAuthenticationOptions.CurrentValue.CookieManager.GetRequestCookie(Context, cookieName);
             if (!string.IsNullOrEmpty(encryptedCookie))
             {
-                byte[] encryptedCookieBytes = Base64UrlTextEncoder.Decode(encryptedCookie);
+                var encryptedCookieBytes = Base64UrlTextEncoder.Decode(encryptedCookie);
                 // Decrypt cookie and remove control characters.
-                IDataProtector dataProtector = _cookieAuthenticationOptions.CurrentValue.DataProtectionProvider.CreateProtector
+                var dataProtector = _cookieAuthenticationOptions.CurrentValue.DataProtectionProvider.CreateProtector
                     ("Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationMiddleware", CookieAuthenticationDefaults.AuthenticationScheme, "v2");
                 string cookie;
                 try
                 {
-                    byte[] cookieBytes = dataProtector.Unprotect(encryptedCookieBytes);
+                    var cookieBytes = dataProtector.Unprotect(encryptedCookieBytes);
                     cookie = Encoding.UTF8.GetString(cookieBytes).RemoveControlCharacters();
                 }
                 catch (CryptographicException exception)
