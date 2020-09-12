@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
@@ -8,7 +7,6 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 using AuthenticationOptions = ErikTheCoder.AspNetCore.Middleware.Options.AuthenticationOptions;
 using ILogger = ErikTheCoder.Logging.ILogger;
 
@@ -47,22 +45,22 @@ namespace ErikTheCoder.AspNetCore.Middleware
 
         private async Task<AuthenticateResult> Authenticate()
         {
-            if (!Request.Headers.TryGetValue(HttpHeaderName, out StringValues authorizationValues)) return await Task.FromResult(AuthenticateResult.Fail($"{HttpHeaderName} header not found.")); // Indicate failure.
-            string token = authorizationValues.ToString();
+            if (!Request.Headers.TryGetValue(HttpHeaderName, out var authorizationValues)) return AuthenticateResult.Fail($"{HttpHeaderName} header not found."); // Indicate failure.
+            var token = authorizationValues.ToString();
             // TODO: Replace foreach-if with a key lookup.
-            foreach (AuthenticationIdentity authenticationIdentity in Options.Identities)
+            foreach (var authenticationIdentity in Options.Identities)
             {
                 if (token == $"{TokenPrefix}{authenticationIdentity.Token}")
                 {
                     // Authorization token is valid.
                     // Create claims identity, add roles, and add claims.
-                    ClaimsIdentity claimsIdentity = new ClaimsIdentity(AuthenticationScheme);
+                    var claimsIdentity = new ClaimsIdentity(AuthenticationScheme);
                     claimsIdentity.AddClaim(new Claim(ClaimTypes.Name, authenticationIdentity.Username));
-                    foreach (string role in authenticationIdentity.Roles) claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, role));
-                    foreach ((string claimType, HashSet<string> claimValues) in authenticationIdentity.Claims) foreach (string claimValue in claimValues) claimsIdentity.AddClaim(new Claim(claimType, claimValue));
+                    foreach (var role in authenticationIdentity.Roles) claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, role));
+                    foreach (var (claimType, claimValues) in authenticationIdentity.Claims) foreach (var claimValue in claimValues) claimsIdentity.AddClaim(new Claim(claimType, claimValue));
                     // Create authentication ticket and indicate success.
-                    AuthenticationTicket authenticationTicket = new AuthenticationTicket(new ClaimsPrincipal(claimsIdentity), Scheme.Name);
-                    return await Task.FromResult(AuthenticateResult.Success(authenticationTicket));
+                    var authenticationTicket = new AuthenticationTicket(new ClaimsPrincipal(claimsIdentity), Scheme.Name);
+                    return AuthenticateResult.Success(authenticationTicket);
                 }
             }
             // Token does not match any known authentication identities.

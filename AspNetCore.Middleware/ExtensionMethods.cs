@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
 using AuthenticationOptions = ErikTheCoder.AspNetCore.Middleware.Options.AuthenticationOptions;
 
 
@@ -16,7 +15,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
     {
         public static Guid GetCorrelationId(this HttpContext HttpContext)
         {
-            return HttpContext.Request.Headers.TryGetValue(CustomHttpHeader.CorrelationId, out StringValues correlationId)
+            return HttpContext.Request.Headers.TryGetValue(CustomHttpHeader.CorrelationId, out var correlationId)
                 ? Guid.Parse(correlationId[0])
                 : Guid.Empty;
         }
@@ -25,7 +24,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
         [UsedImplicitly]
         public static void UseErikTheCoderClientPackages(this IApplicationBuilder ApplicationBuilder, Action<ClientPackagesOptions> ConfigureOptions = null)
         {
-            ClientPackagesOptions options = new ClientPackagesOptions();
+            var options = new ClientPackagesOptions();
             ConfigureOptions?.Invoke(options);
             if (string.IsNullOrWhiteSpace(options.RequestUrlPath)) throw new Exception($"{nameof(options.RequestUrlPath)} not specified.");
             if (string.IsNullOrWhiteSpace(options.FilePath)) throw new Exception($"{nameof(options.FilePath)} not specified.");
@@ -36,7 +35,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
         [UsedImplicitly]
         public static void UseErikTheCoderLogging(this IApplicationBuilder ApplicationBuilder, Action<LoggingOptions> ConfigureOptions = null)
         {
-            LoggingOptions options = new LoggingOptions();
+            var options = new LoggingOptions();
             ConfigureOptions?.Invoke(options);
             ApplicationBuilder.UseMiddleware<LoggingMiddleware>(options);
         }
@@ -45,7 +44,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
         [UsedImplicitly]
         public static void UseErikTheCoderExceptionHandling(this IApplicationBuilder ApplicationBuilder, Action<ExceptionHandlingOptions> ConfigureOptions = null)
         {
-            ExceptionHandlingOptions options = new ExceptionHandlingOptions();
+            var options = new ExceptionHandlingOptions();
             ConfigureOptions?.Invoke(options);
             ExceptionHandlingMiddleware.Enable(ApplicationBuilder, options);
         }

@@ -24,14 +24,14 @@ namespace ErikTheCoder.AspNetCore.Middleware
 
         public async Task OnActionExecutionAsync(ActionExecutingContext Context, ActionExecutionDelegate Next)
         {
-            ILogger logger = Context.HttpContext.RequestServices.GetService<ILogger>();
+            var logger = Context.HttpContext.RequestServices.GetService<ILogger>();
             try
             {
                 CorrelationId = Context.HttpContext.GetCorrelationId();
                 ClientIpAddress = $"{Context.HttpContext.Connection.RemoteIpAddress}:{Context.HttpContext.Connection.RemotePort}";
                 ServerIpAddress = $"{Context.HttpContext.Connection.LocalIpAddress}:{Context.HttpContext.Connection.RemotePort}";
                 User = User.ParseClaims(Context.HttpContext.User.Claims);
-                Stopwatch stopwatch = Stopwatch.StartNew();
+                var stopwatch = Stopwatch.StartNew();
                 await Next();
                 stopwatch.Stop();
                 ActionExecutionDuration = stopwatch.Elapsed;
@@ -46,10 +46,10 @@ namespace ErikTheCoder.AspNetCore.Middleware
 
         public async Task OnResultExecutionAsync(ResultExecutingContext Context, ResultExecutionDelegate Next)
         {
-            ILogger logger = Context.HttpContext.RequestServices.GetService<ILogger>();
+            var logger = Context.HttpContext.RequestServices.GetService<ILogger>();
             try
             {
-                Stopwatch stopwatch = Stopwatch.StartNew();
+                var stopwatch = Stopwatch.StartNew();
                 await Next();
                 stopwatch.Stop();
                 ResultExecutionDuration = stopwatch.Elapsed;
