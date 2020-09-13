@@ -9,8 +9,7 @@ namespace ErikTheCoder.AspNetCore.Middleware
 {
     public abstract class ControllerBase : Controller
     {
-        private bool _retrievedCorrelationId;
-        private Guid _correlationId;
+        private Guid? _correlationId;
         [UsedImplicitly] protected readonly IAppSettings AppSettings;
         [UsedImplicitly] protected readonly ILogger Logger;
 
@@ -27,10 +26,9 @@ namespace ErikTheCoder.AspNetCore.Middleware
         {
             get
             {
-                if (_retrievedCorrelationId) return _correlationId;
+                if (_correlationId.HasValue) return _correlationId.Value;
                 _correlationId = HttpContext.GetCorrelationId();
-                _retrievedCorrelationId = true;
-                return _correlationId;
+                return _correlationId.Value;
             }
         }
 
